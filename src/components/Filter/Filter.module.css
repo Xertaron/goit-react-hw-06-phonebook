@@ -2,10 +2,11 @@
   margin-bottom: 15px;
 }
 
-.labelFilter {
-  color: rgb(58, 209, 96);
+.filterHeader {
+  color: rgb(112, 166, 247);
+  margin-top: 5px;
 }
 
 .filterInput {
-  margin-left: 20px;
+  margin: 10px;
 }

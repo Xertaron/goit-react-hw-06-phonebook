@@ -1,71 +1,77 @@
-import React, { Component } from 'react';
-import data from './ContactForm.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
+import { addContact } from '../../redux/contactSlice.jsx';
+import { nanoid } from 'nanoid';
+import styles from './ContactForm.module.css';
 
-class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
+export const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts.items);
+
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const inputChange = event => {
+    switch (event.target.name) {
+      case 'name':
+        setName(event.target.value);
+        break;
+      case 'number':
+        setNumber(event.target.value);
+        break;
+      default:
+        console.log('er');
+    }
   };
 
-  handleChange = name => e => {
-    const { target } = e;
+  const handleSubmit = event => {
+    event.preventDefault();
 
-    this.setState(() => ({
-      [name]: target.value,
-    }));
+    const isContactRepeat = contacts.find(el => el.name === name);
+
+    if (isContactRepeat) {
+      alert('Already in Contacts');
+      return;
+    }
+    const contact = {
+      name,
+      number,
+      id: nanoid(),
+    };
+
+    const action = addContact(contact);
+    dispatch(action);
+
+    event.target.reset();
   };
 
-  handleSubmit = e => {
-    e.preventDefault();
+  return (
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <h3 className={styles.labelName}>Name</h3>
+      <input
+        className={styles.label}
+        type="text"
+        name="name"
+        onChange={inputChange}
+        pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+        title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+        required
+      />
 
-    const { onSubmit } = this.props;
-    onSubmit(this.state);
-    this.resetForm();
-  };
-
-  resetForm = () => {
-    this.setState(() => ({
-      name: '',
-      number: '',
-    }));
-  };
-
-  render() {
-    return (
-      <form className={data.form} onSubmit={this.handleSubmit}>
-        <label className={data.labelName}>
-          Name
-          <input
-            className={data.inputName}
-            value={this.state.name}
-            onChange={this.handleChange('name')}
-            type="text"
-            name="name"
-            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-            required
-          />
-        </label>
-        <label className={data.labelNumber}>
-          Number
-          <input
-            className={data.inputNumber}
-            value={this.state.number}
-            onChange={this.handleChange('number')}
-            type="tel"
-            name="number"
-            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-            required
-          />
-        </label>
-
-        <button type="submit" className={data.buttonEditor}>
-          Add contact
-        </button>
-      </form>
-    );
-  }
-}
-
-export default ContactForm;
+      <h3 className={styles.labelNumber}>Number</h3>
+      <input
+        className={styles.label}
+        type="tel"
+        name="number"
+        onChange={inputChange}
+        pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+        title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+        required
+      />
+      <button className={styles.buttonEditor} type="submit">
+        {' '}
+        Add contact{' '}
+      </button>
+    </form>
+  );
+};
